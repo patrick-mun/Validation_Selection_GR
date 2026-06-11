@@ -1,0 +1,7 @@
+tools:
+  bcftools: bcftools
+  tabix: tabix
+  plink2: plink2
+  plink1: plink
+  admixture: admixture
+  king: king
