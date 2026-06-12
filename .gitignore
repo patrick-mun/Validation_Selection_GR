@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+*.egg-info/
+
+# Data
+data/raw/*
+data/reference_panels/*
+data/processed/*
+data/demo/*
+!data/**/.gitkeep
+!data/**/README.md
+
+# Work directories
+work/*
+!work/**/.gitkeep
+
+# Results, reports, logs
+results/*
+reports/*
+logs/*
+!results/**/.gitkeep
+!reports/**/.gitkeep
+!logs/**/.gitkeep
+
+# Genetic files
+*.vcf
+*.vcf.gz
+*.bcf
+*.bcf.gz
+*.tbi
+*.csi
+*.bed
+*.bim
+*.fam
+*.pgen
+*.pvar
+*.psam
+*.ped
+*.map
+*.bam
+*.bai
+*.cram
+*.crai
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# System
+.DS_Store
+Thumbs.db

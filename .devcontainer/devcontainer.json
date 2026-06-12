@@ -1,0 +1,16 @@
+{
+  "name": "Génome Réunion Validation",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "genorun-app",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}

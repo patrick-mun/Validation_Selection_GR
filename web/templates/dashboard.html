@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="banner">
+    Données de démonstration — worker en dry-run. Résultats non interprétables scientifiquement.
+  </div>
+
+  <section class="card">
+    <h2 style="margin:0 0 12px;font-size:18px;font-weight:500">Lancer une analyse</h2>
+    <div class="controls">
+      <div>
+        <label for="dataset">Jeu de données</label>
+        <select id="dataset"><option value="1000G_chr22">1000G chr22</option></select>
+      </div>
+      <div>
+        <label for="profile">Profil</label>
+        <select id="profile"><option value="profil_C">Profil C</option></select>
+      </div>
+      <div>
+        <label for="strategy">Stratégie</label>
+        <select id="strategy">
+          <option value="geo_ancestrale_decouverte">Géo-ancestrale + découverte</option>
+          <option value="geo_ancestrale">Géo-ancestrale</option>
+        </select>
+      </div>
+      <button id="btn-lancer" class="primary" type="button">Lancer l'analyse</button>
+    </div>
+    <p id="suivi" style="margin:12px 0 0;font-size:14px;color:var(--muted)"></p>
+  </section>
+
+  <section class="card">
+    <h2 style="margin:0 0 12px;font-size:18px;font-weight:500">Runs récents</h2>
+    {% if jobs %}
+    <table>
+      <thead><tr><th>Run</th><th>Jeu de données</th><th>Stratégie</th><th>Statut</th><th>Mis à jour</th></tr></thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td><a href="{{ url_for('main.run_detail', run_id=job.job_id) }}">{{ job.job_id }}</a></td>
+          <td>{{ job.dataset }}</td>
+          <td>{{ job.strategy }}</td>
+          <td><span class="badge s-{{ job.status.value }}">{{ job.status.value }}</span></td>
+          <td>{{ job.updated_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--muted);margin:0">Aucun run pour le moment. Lancez une analyse ci-dessus.</p>
+    {% endif %}
+  </section>
+{% endblock %}

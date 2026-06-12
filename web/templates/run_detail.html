@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Run {{ job.job_id }} — Génome Réunion{% endblock %}
+{% block content %}
+  <section class="card">
+    <h2 style="margin:0 0 8px;font-size:18px;font-weight:500">Run {{ job.job_id }}</h2>
+    <p style="margin:0;color:var(--muted)">
+      {{ job.dataset }} · {{ job.profile }} · {{ job.strategy }} —
+      <span class="badge s-{{ job.status.value }}">{{ job.status.value }}</span>
+    </p>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0 0 10px;font-size:16px;font-weight:500">Étapes</h3>
+    <table>
+      <thead><tr><th>Étape</th><th>Statut</th><th>Message</th></tr></thead>
+      <tbody>
+        {% for step in job.steps %}
+        <tr>
+          <td>{{ step.name }}</td>
+          <td><span class="badge s-{{ step.status }}">{{ step.status }}</span></td>
+          <td>{{ step.message or "" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0 0 10px;font-size:16px;font-weight:500">Logs &amp; traçabilité</h3>
+    <pre class="logs">{{ log_tail }}</pre>
+  </section>
+{% endblock %}

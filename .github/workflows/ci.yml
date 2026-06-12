@@ -1,0 +1,29 @@
+name: ci
+
+# Porte de test minimale du dépôt (voir docs/ROADMAP.md) :
+# compilation + lint + tests. Une PR rouge ne doit pas être fusionnée.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  qualite-et-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Installer le projet et les outils de dev
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Compilation (compileall)
+        run: python -m compileall src scripts web
+      - name: Lint (ruff)
+        run: ruff check src scripts web tests
+      - name: Format check (ruff)
+        run: ruff format --check src scripts web tests
+      - name: Tests (pytest)
+        run: pytest --cov --cov-report=term-missing

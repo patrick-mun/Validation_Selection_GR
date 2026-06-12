@@ -1,9 +1,14 @@
-panels:
-  1000g_high_coverage:
-    provider: IGSR
-    build: GRCh38
-    n_samples: 3202
-    role: public_pipeline_development_and_sanity_check
-    collection_url: "https://www.internationalgenome.org/data-portal/data-collection/1000genomes_30x"
-    ftp_working_root: "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/"
-    phased_panel_url: "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV/"
+strategies:
+  random:
+    description: "Sélection aléatoire"
+  geo_strict:
+    description: "Sélection par quotas géographiques stricts"
+  geo_ancestry_discovery:
+    description: "Sélection géo-ancestrale avec bras découverte"
+    weights:
+      pca: 0.30
+      admixture: 0.30
+      ibd: 0.25
+      roh: 0.15
+  maximin:
+    description: "Sélection maximisant la diversité génétique"

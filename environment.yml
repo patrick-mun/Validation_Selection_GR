@@ -1,0 +1,19 @@
+name: genorun-validation
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pip
+  - bcftools
+  - samtools
+  - htslib
+  - plink
+  - plink2
+  - admixture
+  - king
+  - vcftools
+  - beagle
+  - shapeit4
+  - pip:
+      - -r requirements.txt

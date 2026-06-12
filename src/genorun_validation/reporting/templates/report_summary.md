@@ -1,0 +1,1 @@
+# Synthèse de validation

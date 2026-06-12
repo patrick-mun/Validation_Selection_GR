@@ -1,0 +1,6 @@
+demo:
+  name: 1000G_chr22_demo
+  chromosome: chr22
+  dataset: 1000G_high_coverage
+  profile: C_mixte_heterogene
+  strategy: geo_ancestry_discovery

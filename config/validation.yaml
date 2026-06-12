@@ -1,58 +1,6 @@
-project:
-  name: genome-reunion-validation-pipeline
-  version: 0.1.0
-  reference_build: GRCh38
-
-data:
-  source: 1000G_high_coverage_IGSR
-  start_mode: chr22_mvp
-  chromosomes: [22]
-
-download:
-  base_url: "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working"
-  panel_url: "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/1000G_2504_high_coverage/working/20220422_3202_phased_SNV_INDEL_SV"
-  autosome_pattern: "1kGP_high_coverage_Illumina.chr{chr}.filtered.SNV_INDEL_SV_phased_panel.vcf.gz"
-  chrX_file: "1kGP_high_coverage_Illumina.chrX.filtered.SNV_INDEL_SV_phased_panel.v2.vcf.gz"
-  pedigree_file: "1kGP.3202_samples.pedigree_info.txt"
-  manifest_file: "20220804_manifest.txt"
-
-qc:
-  snps_only: true
-  biallelic_only: true
-  geno: 0.05
-  maf: 0.01
-  hwe: 1e-6
-  remove_ambiguous_snps: true
-  ld_pruning:
-    window_kb: 200
-    step: 50
-    r2: 0.2
-
-pca:
-  n_components: 20
-  approx: true
-
-admixture:
-  k_min: 3
-  k_max: 10
-  seeds: [42, 101, 202, 303, 404]
-
-selection:
-  n_select: 350
-  strategies:
-    - random
-    - population_stratified
-    - pca_maximin
-    - admixture_maximin
-    - sdiv_global
-    - sdiv_geoancestry_proxy
-  sdiv_weights:
-    pca: 0.30
-    admixture: 0.30
-    ibd: 0.25
-    roh: 0.15
-
-evaluation:
-  random_replicates: 100
-  primary_criterion: non_regression_vs_random
-  chip_to_wgs_threshold: 0.05
+validation:
+  n_total: 2500
+  n_wgs: 350
+  discovery_ratio: 0.10
+  seeds_screening: 25
+  seeds_decision: 100

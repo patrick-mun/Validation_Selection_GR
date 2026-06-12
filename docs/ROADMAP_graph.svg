@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="1124" viewBox="0 0 680 1124" font-family="Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-label="Feuille de route Génome Réunion, du socle au déploiement">
+<title>Feuille de route Génome Réunion — du socle au déploiement</title>
+<rect x="0" y="0" width="680" height="1124" fill="#ffffff"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="40" y="14" width="12" height="12" rx="3" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+<text x="58" y="24" font-size="12" fill="#3d3d3a">Préparation</text>
+<rect x="180" y="14" width="12" height="12" rx="3" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="198" y="24" font-size="12" fill="#3d3d3a">Construction</text>
+<rect x="320" y="14" width="12" height="12" rx="3" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text x="338" y="24" font-size="12" fill="#3d3d3a">Livraison</text>
+<rect x="430" y="14" width="12" height="12" rx="3" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="448" y="24" font-size="12" fill="#3d3d3a">Porte de test</text>
+<rect x="160" y="48" width="360" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.8"/>
+<text x="340" y="68" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Phase 0 — Socle &amp; durcissement</text>
+<text x="340" y="86" text-anchor="middle" font-size="12" fill="#5F5E5A">Outillage, CI, contrats, sécurité</text>
+<line x1="340" y1="98" x2="340" y2="112" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="112" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="130" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="140" x2="340" y2="154" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="154" width="360" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="340" y="174" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Phase 1 — Wrappers outils externes</text>
+<text x="340" y="192" text-anchor="middle" font-size="12" fill="#534AB7">external/ sécurisés (shell=False)</text>
+<line x1="340" y1="204" x2="340" y2="218" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="218" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="236" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="246" x2="340" y2="260" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="260" width="360" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="340" y="280" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Phase 2 — Parsers de sorties</text>
+<text x="340" y="298" text-anchor="middle" font-size="12" fill="#534AB7">PLINK · KING · ADMIXTURE → données typées</text>
+<line x1="340" y1="310" x2="340" y2="324" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="324" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="342" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="352" x2="340" y2="366" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="366" width="360" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="340" y="386" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Phase 3 — Cœur scientifique</text>
+<text x="340" y="404" text-anchor="middle" font-size="12" fill="#534AB7">QC → S_div → sélection WGS</text>
+<line x1="340" y1="416" x2="340" y2="430" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="430" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="448" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="458" x2="340" y2="472" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="472" width="360" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="340" y="492" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Phase 4 — Orchestration &amp; worker réel</text>
+<text x="340" y="510" text-anchor="middle" font-size="12" fill="#534AB7">Sortie du mode dry-run</text>
+<line x1="340" y1="522" x2="340" y2="536" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="536" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="554" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="564" x2="340" y2="578" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="578" width="360" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.8"/>
+<text x="340" y="598" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Phase 5 — Persistance SQL ↔ jobs</text>
+<text x="340" y="616" text-anchor="middle" font-size="12" fill="#534AB7">Métadonnées, scores, audit</text>
+<line x1="340" y1="628" x2="340" y2="642" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="642" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="660" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="670" x2="340" y2="684" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="684" width="360" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text x="340" y="704" text-anchor="middle" font-size="14" font-weight="500" fill="#04342C">Phase 6 — Reporting</text>
+<text x="340" y="722" text-anchor="middle" font-size="12" fill="#0F6E56">Rapports reproductibles HTML/PDF</text>
+<line x1="340" y1="734" x2="340" y2="748" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="748" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="766" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="776" x2="340" y2="790" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="790" width="360" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text x="340" y="810" text-anchor="middle" font-size="14" font-weight="500" fill="#04342C">Phase 7 — Interface web Flask</text>
+<text x="340" y="828" text-anchor="middle" font-size="12" fill="#0F6E56">Pages, lancement, suivi des logs</text>
+<line x1="340" y1="840" x2="340" y2="854" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="854" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="872" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="882" x2="340" y2="896" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="896" width="360" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text x="340" y="916" text-anchor="middle" font-size="14" font-weight="500" fill="#04342C">Phase 8 — Recette V3.5 end-to-end</text>
+<text x="340" y="934" text-anchor="middle" font-size="12" fill="#0F6E56">Quotas, bras découverte, IBD, S_div</text>
+<line x1="340" y1="946" x2="340" y2="960" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="200" y="960" width="280" height="28" rx="14" fill="#FAECE7" stroke="#993C1D" stroke-width="0.8"/>
+<text x="340" y="978" text-anchor="middle" font-size="12" fill="#4A1B0C">Étape à tester avant la suivante</text>
+<line x1="340" y1="988" x2="340" y2="1002" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="160" y="1002" width="360" height="50" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.8"/>
+<text x="340" y="1022" text-anchor="middle" font-size="14" font-weight="500" fill="#04342C">Phase 9 — Déploiement</text>
+<text x="340" y="1040" text-anchor="middle" font-size="12" fill="#0F6E56">Docker · prod · runbook</text>
+<line x1="340" y1="1052" x2="340" y2="1066" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="190" y="1066" width="300" height="30" rx="15" fill="#FAECE7" stroke="#993C1D" stroke-width="1.2"/>
+<text x="340" y="1085" text-anchor="middle" font-size="14" font-weight="500" fill="#4A1B0C">Recette finale → mise en production</text>
+</svg>

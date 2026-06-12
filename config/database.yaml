@@ -1,0 +1,20 @@
+# Configuration documentaire de la base.
+# La valeur opérationnelle doit venir de GENORUN_DATABASE_URL ou DATABASE_URL.
+database:
+  engine: postgresql
+  target: postgresql+psycopg
+  env_variable: GENORUN_DATABASE_URL
+  default_docker_url: postgresql+psycopg://genorun:genorun@genorun-db:5432/genorun_validation
+  store_large_genetic_files_in_db: false
+  stores:
+    - projects
+    - cohorts
+    - samples
+    - input_files_metadata
+    - analysis_jobs
+    - analysis_steps
+    - job_logs_short
+    - software_versions
+    - audit_events
+    - qc_metrics
+    - selection_scores

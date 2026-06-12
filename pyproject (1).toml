@@ -1,9 +1,0 @@
-[project]
-name = "genorun-validation"
-version = "0.1.0"
-description = "Validation pipeline for Genome Reunion WGS selection methodology"
-requires-python = ">=3.10"
-authors = [{ name = "Projet Génome Réunion" }]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]

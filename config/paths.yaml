@@ -1,0 +1,8 @@
+paths:
+  data_raw: data/raw
+  reference_panels: data/reference_panels
+  data_processed: data/processed
+  work: work
+  results: results
+  reports: reports
+  logs: logs

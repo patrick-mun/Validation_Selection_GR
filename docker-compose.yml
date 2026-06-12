@@ -1,0 +1,70 @@
+services:
+  genorun-db:
+    image: postgres:16-alpine
+    container_name: genorun-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-genorun_validation}
+      POSTGRES_USER: ${POSTGRES_USER:-genorun}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-genorun}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-genorun} -d ${POSTGRES_DB:-genorun_validation}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  genorun-app:
+    build: .
+    container_name: genorun-app
+    depends_on:
+      genorun-db:
+        condition: service_healthy
+    environment:
+      GENORUN_SECRET_KEY: ${GENORUN_SECRET_KEY:-dev-insecure-change-me}
+      GENORUN_DATABASE_URL: ${GENORUN_DATABASE_URL:-postgresql+psycopg://genorun:genorun@genorun-db:5432/genorun_validation}
+      GENORUN_ENABLE_DATABASE: ${GENORUN_ENABLE_DATABASE:-true}
+      GENORUN_WORKER_MODE: ${GENORUN_WORKER_MODE:-external}
+      GENORUN_JOB_BACKEND: ${GENORUN_JOB_BACKEND:-filesystem_plus_postgresql}
+      GENORUN_RUNS_ROOT: ${GENORUN_RUNS_ROOT:-/app/work/runs}
+      GENORUN_INPUTS_ROOT: ${GENORUN_INPUTS_ROOT:-/app/data/inputs}
+      GENORUN_OUTPUTS_ROOT: ${GENORUN_OUTPUTS_ROOT:-/app/results}
+      GENORUN_REPORTS_ROOT: ${GENORUN_REPORTS_ROOT:-/app/reports}
+      GENORUN_LOGS_ROOT: ${GENORUN_LOGS_ROOT:-/app/logs}
+    ports:
+      - "${GENORUN_APP_PORT:-8000}:8000"
+    volumes:
+      - ./data:/app/data
+      - ./work:/app/work
+      - ./results:/app/results
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+
+  genorun-worker:
+    build: .
+    container_name: genorun-worker
+    depends_on:
+      genorun-db:
+        condition: service_healthy
+    environment:
+      GENORUN_DATABASE_URL: ${GENORUN_DATABASE_URL:-postgresql+psycopg://genorun:genorun@genorun-db:5432/genorun_validation}
+      GENORUN_ENABLE_DATABASE: ${GENORUN_ENABLE_DATABASE:-true}
+      GENORUN_WORKER_MODE: ${GENORUN_WORKER_MODE:-external}
+      GENORUN_JOB_BACKEND: ${GENORUN_JOB_BACKEND:-filesystem_plus_postgresql}
+      GENORUN_RUNS_ROOT: ${GENORUN_RUNS_ROOT:-/app/work/runs}
+      GENORUN_INPUTS_ROOT: ${GENORUN_INPUTS_ROOT:-/app/data/inputs}
+      GENORUN_OUTPUTS_ROOT: ${GENORUN_OUTPUTS_ROOT:-/app/results}
+      GENORUN_REPORTS_ROOT: ${GENORUN_REPORTS_ROOT:-/app/reports}
+      GENORUN_LOGS_ROOT: ${GENORUN_LOGS_ROOT:-/app/logs}
+    command: ["conda", "run", "--no-capture-output", "-n", "genorun-validation", "python", "scripts/run_worker_loop.py"]
+    volumes:
+      - ./data:/app/data
+      - ./work:/app/work
+      - ./results:/app/results
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:

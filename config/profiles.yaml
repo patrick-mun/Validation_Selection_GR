@@ -1,0 +1,7 @@
+profiles:
+  A_homogene:
+    description: "Profil homogène"
+  C_mixte_heterogene:
+    description: "Profil mixte et hétérogène"
+  D_isolat_cryptique:
+    description: "Profil stress-test avec isolat cryptique"

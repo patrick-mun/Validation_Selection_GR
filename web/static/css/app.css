@@ -1,0 +1,31 @@
+/* Front vanilla — palette Génome Réunion (teal/navy/coral). Aucun framework CSS. */
+:root{
+  --navy:#0b2a3a; --teal:#0F6E56; --teal-50:#E1F5EE; --coral:#D85A30;
+  --ink:#1f2d33; --muted:#5f6b70; --line:#e3e8e6; --bg:#f6f8f7; --white:#fff;
+  --ok:#0F6E56; --ok-bg:#E1F5EE; --run:#185FA5; --run-bg:#E6F1FB;
+  --wait:#888780; --wait-bg:#F1EFE8; --fail:#A32D2D; --fail-bg:#FCEBEB;
+  --warn:#854F0B; --warn-bg:#FAEEDA;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,Segoe UI,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+a{color:var(--teal);text-decoration:none}
+header.topbar{display:flex;align-items:center;gap:12px;padding:14px 22px;background:var(--navy);color:#fff}
+header.topbar .brand{font-weight:600;letter-spacing:.2px}
+header.topbar .sub{opacity:.8;font-size:13px}
+.wrap{max-width:1100px;margin:22px auto;padding:0 22px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.banner{display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-size:13.5px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;align-items:end}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+select,input,button{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--white)}
+button.primary{background:var(--teal);color:#fff;border-color:var(--teal);cursor:pointer}
+button.primary:active{transform:scale(.99)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+.badge{display:inline-block;font-size:12px;padding:3px 9px;border-radius:8px}
+.s-completed{background:var(--ok-bg);color:var(--ok)}
+.s-running,.s-queued{background:var(--run-bg);color:var(--run)}
+.s-created,.s-cancelled{background:var(--wait-bg);color:var(--wait)}
+.s-failed{background:var(--fail-bg);color:var(--fail)}
+pre.logs{background:#0b1418;color:#cfe9df;padding:14px;border-radius:8px;font-size:12.5px;overflow:auto;max-height:340px}
