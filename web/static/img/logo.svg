@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 155" role="img" aria-label="Logo Génome Réunion — Référentiel Génomique">
+  <!-- Vague 1 : bleu marine foncé -->
+  <path d="M 15,50 C 45,28 75,28 105,50 C 135,72 165,72 195,50 C 210,39 225,35 237,41"
+        stroke="#1A3C5A" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <!-- Vague 2 : teal -->
+  <path d="M 15,80 C 45,58 75,58 105,80 C 135,102 165,102 195,80 C 210,69 225,65 237,71"
+        stroke="#3A8FA2" stroke-width="13" fill="none" stroke-linecap="round"/>
+  <!-- Vague 3 : corail -->
+  <path d="M 15,112 C 45,90 75,90 105,112 C 135,134 165,134 195,112 C 208,102 220,98 230,103"
+        stroke="#D06347" stroke-width="13" fill="none" stroke-linecap="round"/>
+
+  <!-- Titre -->
+  <text x="262" y="80"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="52" font-weight="bold"
+        fill="#1A3C5A">Génome Réunion</text>
+
+  <!-- Sous-titre -->
+  <text x="265" y="114"
+        font-family="'Helvetica Neue', Arial, Helvetica, sans-serif"
+        font-size="15" fill="#3A8FA2" letter-spacing="5">RÉFÉRENTIEL GÉNOMIQUE</text>
+</svg>

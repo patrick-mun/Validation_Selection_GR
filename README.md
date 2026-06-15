@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/static/img/logo.svg" alt="Logo Génome Réunion — Référentiel Génomique" width="680">
+</p>
+
 # Génome Réunion — Validation Pipeline App
 
 Scaffold de développement pour transformer le pipeline de validation de la sélection WGS du projet **Génome Réunion** en application de recherche bioinformatique pilotable par interface web.
