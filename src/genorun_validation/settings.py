@@ -48,7 +48,7 @@ class Settings:
     job_backend: str = "filesystem_plus_postgresql"
 
     @classmethod
-    def from_env(cls, project_root: Path | str | None = None) -> "Settings":
+    def from_env(cls, project_root: Path | str | None = None) -> Settings:
         """Construit la configuration depuis l'environnement courant."""
         root = find_project_root(project_root)
         default_database_url = "postgresql+psycopg://genorun:genorun@localhost:5432/genorun_validation"

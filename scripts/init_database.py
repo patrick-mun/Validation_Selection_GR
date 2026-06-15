@@ -19,7 +19,6 @@ if str(SRC) not in sys.path:
 
 from genorun_validation.database.init_db import init_database  # noqa: E402
 
-
 if __name__ == "__main__":
     init_database()
     print("Base initialisée.")

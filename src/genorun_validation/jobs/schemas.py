@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -66,7 +66,7 @@ class PipelineJob:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "PipelineJob":
+    def from_dict(cls, payload: dict[str, Any]) -> PipelineJob:
         """Reconstruit un job à partir d'un dictionnaire JSON."""
         return cls(
             job_id=payload["job_id"],
@@ -92,7 +92,7 @@ class PipelineJob:
 
 def utc_now_iso() -> str:
     """Horodatage UTC ISO-8601."""
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
 
 
 def _optional_path(value: str | None) -> Path | None:

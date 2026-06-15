@@ -47,7 +47,7 @@ class StepOutput:
 
     metrics: dict[str, float] = field(default_factory=dict)
     artifacts: dict[str, Path] = field(default_factory=dict)
-    tables: dict[str, "pd.DataFrame"] = field(default_factory=dict)
+    tables: dict[str, pd.DataFrame] = field(default_factory=dict)
 
 
 @dataclass(slots=True, frozen=True)

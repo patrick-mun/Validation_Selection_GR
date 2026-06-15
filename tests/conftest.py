@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 # Les tests unitaires ne doivent pas nécessiter un PostgreSQL lancé.
 os.environ.setdefault("GENORUN_DATABASE_URL", "sqlite+pysqlite:///:memory:")

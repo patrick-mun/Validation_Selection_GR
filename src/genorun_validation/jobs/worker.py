@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import json
 import time
-from pathlib import Path
 
 from .manager import JobManager
 from .schemas import JobStatus, PipelineJob, utc_now_iso
