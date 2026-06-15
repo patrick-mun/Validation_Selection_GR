@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture — Génome Réunion · Validation Pipeline</title>
+<style>
+
+/* ═══════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════ */
+:root {
+  --bg:       #f0f4f8;
+  --bg-card:  #ffffff;
+  --border:   #cbd5e1;
+  --text:     #1e293b;
+  --muted:    #64748b;
+  --teal:     #0d9488;
+  --coral:    #ea580c;
+  --blue:     #2563eb;
+  --purple:   #7c3aed;
+  --amber:    #d97706;
+  --green:    #059669;
+  --pink:     #db2777;
+  --cyan:     #0891b2;
+  --indigo:   #4f46e5;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 24px 20px 40px;
+}
+
+/* ═══════════════════════════════════════
+   HEADER
+═══════════════════════════════════════ */
+.header {
+  text-align: center;
+  padding: 22px 28px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 18px;
+}
+.header h1 {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 0.2px;
+  margin-bottom: 5px;
+}
+.header .sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+.header .sub strong { color: var(--text); }
+
+/* ═══════════════════════════════════════
+   LEGEND
+═══════════════════════════════════════ */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.legend-title {
+  width: 100%;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.leg-box {
+  width: 14px; height: 11px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+}
+/* legend color classes */
+.c-entry  { background:#ede9fe; border-color:#6366f1; }
+.c-infra  { background:#dbeafe; border-color:#2563eb; }
+.c-impl   { background:#ccfbf1; border-color:#0d9488; }
+.c-db     { background:#ede9fe; border-color:#7c3aed; }
+.c-stor   { background:#dcfce7; border-color:#16a34a; }
+.c-cfg    { background:#fef9c3; border-color:#a16207; }
+.c-ext    { background:#ffedd5; border-color:#d97706; border-style:dashed; }
+.c-stub   { background:#fee2e2; border-color:#dc2626; border-style:dashed; }
+.c-svc    { background:#e0f2fe; border-color:#0891b2; border-style:dashed; }
+.c-rpt    { background:#fce7f3; border-color:#db2777; border-style:dashed; }
+
+/* ═══════════════════════════════════════
+   PIPELINE CONTAINER
+═══════════════════════════════════════ */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════
+   LEVEL ROW
+═══════════════════════════════════════ */
+.lv-row {
+  display: flex;
+  align-items: stretch;
+}
+
+/* Left number + name */
+.lv-sidebar {
+  width: 96px;
+  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.lv-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: #94a3b8;
+  line-height: 1;
+}
+.lv-name {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Colored vertical bar */
+.lv-bar {
+  width: 4px;
+  min-width: 4px;
+  border-radius: 4px;
+  margin: 6px 10px 6px 0;
+  flex-shrink: 0;
+}
+
+/* Content panel */
+.lv-content {
+  flex: 1;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 4px 0;
+}
+.lv-content .lv-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Arrow between levels */
+.lv-arrow {
+  margin-left: 110px;   /* sidebar + bar width */
+  padding: 1px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 18px;
+  user-select: none;
+}
+
+/* ═══════════════════════════════════════
+   MODULE CARDS
+═══════════════════════════════════════ */
+.mods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+.mods.col { flex-direction: column; }
+
+.mod {
+  padding: 8px 11px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  cursor: default;
+  transition: transform .12s, box-shadow .12s;
+  min-width: 160px;
+}
+.mod:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.55);
+  z-index: 10;
+  position: relative;
+}
+.mod-name {
+  font-weight: 600;
+  font-size: 12.5px;
+  display: block;
+  margin-bottom: 2px;
+}
+.mod-desc {
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: .78;
+  display: block;
+  line-height: 1.4;
+}
+.mod-files {
+  font-size: 9.5px;
+  margin-top: 5px;
+  display: block;
+  opacity: .55;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  letter-spacing: 0.2px;
+}
+
+/* Status badge */
+.tag {
+  display: inline-block;
+  font-size: 8.5px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  margin-left: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  vertical-align: middle;
+}
+.tag-ok   { background: #0d9488; color: #f0fdfa; }
+.tag-stub { background: #dc2626; color: #fff1f2; }
+
+/* Module visual variants */
+.entry { background:#ede9fe; border-color:#6366f1; color:#3730a3; }
+.infra { background:#dbeafe; border-color:#2563eb; color:#1e3a8a; }
+.impl  { background:#ccfbf1; border-color:#0d9488; color:#134e4a; }
+.db    { background:#ede9fe; border-color:#7c3aed; color:#4c1d95; }
+.stor  { background:#dcfce7; border-color:#16a34a; color:#14532d; }
+.cfg   { background:#fef9c3; border-color:#a16207; color:#713f12; }
+.ext   { background:#ffedd5; border-color:#d97706; color:#7c2d12; border-style:dashed; }
+.stub  { background:#fee2e2; border-color:#dc2626; color:#7f1d1d; border-style:dashed; }
+.svc   { background:#e0f2fe; border-color:#0891b2; color:#0c4a6e; border-style:dashed; }
+.rpt   { background:#fce7f3; border-color:#db2777; color:#831843; border-style:dashed; }
+
+/* ═══════════════════════════════════════
+   TWO-COLUMN GRID (level 4 & 7)
+═══════════════════════════════════════ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.sub-panel {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.sub-panel-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 9px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════
+   TRANSVERSAL SECTION
+═══════════════════════════════════════ */
+.transversal {
+  max-width: 1280px;
+  margin: 16px auto 0;
+}
+.transversal .lv-content {
+  margin: 0;
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+.transversal .lv-title {
+  color: var(--muted) !important;
+}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 30px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+footer span.ok  { color: #0d9488; font-weight:600; }
+footer span.stub{ color: #dc2626; font-weight:600; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════ -->
+<div class="header">
+  <h1>🧬 Génome Réunion — Validation &amp; Sélection Pipeline</h1>
+  <p class="sub">
+    Architecture des modules · dépôt <strong>Validation_Selection_GR</strong> ·
+    généré le <strong>2026-06-15</strong>
+  </p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     LÉGENDE
+═══════════════════════════════════════════════════════ -->
+<div class="legend">
+  <div class="legend-title">Légende — type &amp; statut des modules</div>
+  <div class="leg"><div class="leg-box c-entry"></div>Point d'entrée utilisateur</div>
+  <div class="leg"><div class="leg-box c-infra"></div>Infrastructure opérationnelle ✅</div>
+  <div class="leg"><div class="leg-box c-impl"></div>Module implémenté ✅</div>
+  <div class="leg"><div class="leg-box c-db"></div>Base de données / ORM ✅</div>
+  <div class="leg"><div class="leg-box c-stor"></div>Stockage fichiers ✅</div>
+  <div class="leg"><div class="leg-box c-cfg"></div>Configuration YAML ✅</div>
+  <div class="leg"><div class="leg-box c-ext"></div>Wrapper outil externe — stub ⬜</div>
+  <div class="leg"><div class="leg-box c-stub"></div>Algorithme scientifique — stub ⬜</div>
+  <div class="leg"><div class="leg-box c-svc"></div>Service métier — stub ⬜</div>
+  <div class="leg"><div class="leg-box c-rpt"></div>Rapport — stub ⬜</div>
+  <div class="leg" style="margin-left:auto;font-size:10.5px;color:#475569;">
+    <em>Bordure pointillée = non encore implémenté · hover = surbrillance</em>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PIPELINE
+═══════════════════════════════════════════════════════ -->
+<div class="pipeline">
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 0 — ENTRÉES UTILISATEUR
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">0</div>
+      <div class="lv-name">Entrée<br>Utilisateur</div>
+    </div>
+    <div class="lv-bar" style="background:#6366f1;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Points d'entrée — comment déclencher un pipeline</div>
+      <div class="mods">
+
+        <div class="mod entry">
+          <span class="mod-name">🖥 Navigateur Web</span>
+          <span class="mod-desc">Formulaire de lancement (dataset, profil, stratégie) · polling de statut JSON toutes les 3 s</span>
+          <span class="mod-files">web/static/js/app.js · web/templates/dashboard.html</span>
+        </div>
+
+        <div class="mod entry">
+          <span class="mod-name">⌨ CLI Typer</span>
+          <span class="mod-desc">Commandes : <code>create_job</code>, <code>run_worker</code>, <code>list_jobs</code></span>
+          <span class="mod-files">src/genorun_validation/cli.py</span>
+        </div>
+
+        <div class="mod entry">
+          <span class="mod-name">🐳 Docker / Worker loop</span>
+          <span class="mod-desc">Services : genorun-app (Flask) · genorun-worker (loop) · genorun-db (PostgreSQL)</span>
+          <span class="mod-files">docker-compose.yml · scripts/run_worker_loop.py</span>
+        </div>
+
+        <div class="mod entry">
+          <span class="mod-name">🧪 Scripts démo &amp; CI</span>
+          <span class="mod-desc">create_demo_job · run_worker --job-id · check_tools.sh · init_database.py</span>
+          <span class="mod-files">scripts/</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 1 — INTERFACE WEB / CLI
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">1</div>
+      <div class="lv-name">Interface<br>Web / CLI</div>
+    </div>
+    <div class="lv-bar" style="background:#3b82f6;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Couche Flask — validation des paramètres, rendu des vues, aucune logique bioinfo</div>
+      <div class="mods">
+
+        <div class="mod infra">
+          <span class="mod-name">App Factory <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">create_app() · blueprints · SECRET_KEY env · MAX_CONTENT_LENGTH 64 Mo</span>
+          <span class="mod-files">web/__init__.py · web/wsgi.py</span>
+        </div>
+
+        <div class="mod infra">
+          <span class="mod-name">Routes Blueprint <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">GET / · POST /api/jobs · GET /api/jobs/&lt;id&gt;/status · GET /runs/&lt;id&gt;</span>
+          <span class="mod-files">web/routes.py</span>
+        </div>
+
+        <div class="mod infra">
+          <span class="mod-name">Templates Jinja2 <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">base.html · dashboard.html (formulaire + liste runs) · run_detail.html (étapes + logs)</span>
+          <span class="mod-files">web/templates/</span>
+        </div>
+
+        <div class="mod infra">
+          <span class="mod-name">JS / CSS Vanilla <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Soumission AJAX du formulaire · polling statut · palette teal / navy / coral</span>
+          <span class="mod-files">web/static/js/app.js · web/static/css/app.css</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">Validateurs d'entrée <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">validate_identifier · ensure_within_base · validate_input_file · validate_weights_sum</span>
+          <span class="mod-files">src/.../utils/validators.py</span>
+        </div>
+
+        <div class="mod cfg">
+          <span class="mod-name">Settings (env) <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">GENORUN_DATABASE_URL · GENORUN_ENABLE_DATABASE · clés depuis l'environnement, jamais codées en dur</span>
+          <span class="mod-files">src/.../settings.py · .env.example</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 2 — GESTION DES JOBS
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">2</div>
+      <div class="lv-name">Gestion<br>des Jobs</div>
+    </div>
+    <div class="lv-bar" style="background:#14b8a6;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Cycle de vie complet d'un job — création, suivi, exécution</div>
+      <div class="mods">
+
+        <div class="mod impl">
+          <span class="mod-name">JobManager <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Crée <code>work/runs/&lt;id&gt;/</code> avec config.yaml, manifest.json, status.json · list_jobs · load_job · sync PostgreSQL optionnel</span>
+          <span class="mod-files">src/.../jobs/manager.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">JobStatus / PipelineJob <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Enum statuts : created → queued → running → completed / failed / cancelled · sérialisation JSON horodatée</span>
+          <span class="mod-files">src/.../jobs/schemas.py</span>
+        </div>
+
+        <div class="mod infra">
+          <span class="mod-name">LocalPipelineWorker <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Exécute les étapes en order pipeline · dry-run (stubs = skipped) · lira les vraies implémentations quand disponibles</span>
+          <span class="mod-files">src/.../jobs/worker.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">Contracts <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Protocoles Python : CoreStep · ExternalToolWrapper · OutputParser — garantissent la séparation des couches</span>
+          <span class="mod-files">src/.../contracts.py</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 3 — ORCHESTRATION
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">3</div>
+      <div class="lv-name">Orchest-<br>ration</div>
+    </div>
+    <div class="lv-bar" style="background:#22d3ee;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Moteur d'exécution des étapes · définition de l'ordre · gestion des erreurs · contexte de run</div>
+      <div class="mods">
+
+        <div class="mod impl">
+          <span class="mod-name">Ordre du Pipeline <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">qc → ld_pruning → pca → admixture → kinship → roh → sdiv → selection → imputation → evaluation</span>
+          <span class="mod-files">orchestration/steps.py · orchestration/pipeline.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">Runner <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">run_pipeline() : itère PIPELINE, appelle chaque étape, met à jour status.json · dry-run si stub</span>
+          <span class="mod-files">orchestration/runner.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">RunContext <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Objet immuable (frozen dataclass) : run_dir, logs/, config.yaml, manifest.json — chemins d'un run</span>
+          <span class="mod-files">orchestration/run_context.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">StepStatus <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">Enum : pending · running · skipped · completed · failed</span>
+          <span class="mod-files">orchestration/status.py</span>
+        </div>
+
+        <div class="mod impl">
+          <span class="mod-name">Exceptions <span class="tag tag-ok">OK</span></span>
+          <span class="mod-desc">PipelineError · StepExecutionError · StepNotImplementedError — hiérarchie claire</span>
+          <span class="mod-files">orchestration/exceptions.py</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 4 — CŒUR SCIENTIFIQUE + OUTILS EXTERNES
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">4</div>
+      <div class="lv-name">Algo &amp;<br>Outils</div>
+    </div>
+    <div class="lv-bar" style="background:#f59e0b;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Cœur scientifique (fonctions pures Python) · Wrappers sécurisés des outils bioinformatiques</div>
+      <div class="grid-2">
+
+        <!-- 4a : core/ -->
+        <div class="sub-panel">
+          <div class="sub-panel-title" style="color:#14b8a6;">
+            4a — core/ · Algorithmes scientifiques purs (tous stubs ⬜)
+          </div>
+          <div class="mods col">
+            <div class="mod stub">
+              <span class="mod-name">QC · Contrôle qualité génotypage <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Filtres MAF, HWE, taux de génotypage manquant · seuils dans config/validation.yaml</span>
+              <span class="mod-files">core/qc.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">LD Pruning <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Élagage déséquilibre de liaison — fenêtre glissante, seuil r²</span>
+              <span class="mod-files">core/ld_pruning.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">PCA · Analyse en composantes principales <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Vérification de la stratification de population · visualisation</span>
+              <span class="mod-files">core/pca.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">ADMIXTURE · Proportions ancestrales <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Inférence d'ancestry non-supervisée (K composantes)</span>
+              <span class="mod-files">core/admixture.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">Kinship / IBD <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Détection parenté · exclusion IBD pour la sélection du panel</span>
+              <span class="mod-files">core/kinship.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">ROH · Runs of Homozygosity <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Calcul longueur totale ROH (Mb), comptage, consanguinité</span>
+              <span class="mod-files">core/roh.py</span>
+            </div>
+            <div class="mod stub" style="border-color:#f59e0b;border-width:2px;">
+              <span class="mod-name">⭐ S_div · Score de diversité <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Score pondéré multi-critères — pilier central du panel hybride WGS · poids dans config/strategies.yaml</span>
+              <span class="mod-files">core/sdiv.py</span>
+            </div>
+            <div class="mod stub" style="border-color:#f59e0b;border-width:2px;">
+              <span class="mod-name">⭐ Sélection V3.5 <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Panel hybride : noyau géo-ancestral + bras découverte contrôlé + quotas secteur + contraintes IBD + analyses de sensibilité</span>
+              <span class="mod-files">core/selection.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">Imputation <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Orchestration pré-phasing (SHAPEIT4) → imputation (BEAGLE) · score r²</span>
+              <span class="mod-files">core/imputation.py</span>
+            </div>
+            <div class="mod stub">
+              <span class="mod-name">Évaluation &amp; Simulation <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Métriques finales · profils de validation A/C/D · analyses de sensibilité</span>
+              <span class="mod-files">core/evaluation.py · core/simulation_profiles.py</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4b : external/ -->
+        <div class="sub-panel">
+          <div class="sub-panel-title" style="color:#fbbf24;">
+            4b — external/ · Wrappers outils bioinformatiques (shell=False)
+          </div>
+          <div class="mods col">
+            <div class="mod impl" style="border-color:#14b8a6;">
+              <span class="mod-name">command_runner <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">run_command() · allowlist d'exécutables · shell=False · capture stdout/stderr · CommandResult dataclass · code de retour contrôlé</span>
+              <span class="mod-files">external/command_runner.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">PLINK · PLINK2 <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">QC génotypage · filtrage · formats BED/BIM/FAM · prepare → validate → run_command</span>
+              <span class="mod-files">external/plink.py · external/plink2.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">KING <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Coefficients de parenté kinship · matrice IBD paire-à-paire</span>
+              <span class="mod-files">external/king.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">ADMIXTURE <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Inférence non-supervisée ancestry · fichiers .Q et .P</span>
+              <span class="mod-files">external/admixture_tool.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">bcftools <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Manipulation VCF/BCF · filtrage · statistiques · conversion</span>
+              <span class="mod-files">external/bcftools.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">BEAGLE <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Imputation de génotypes · calcul scores r² par SNP</span>
+              <span class="mod-files">external/beagle.py</span>
+            </div>
+            <div class="mod ext">
+              <span class="mod-name">SHAPEIT4 <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">Pré-phasing des haplotypes avant imputation BEAGLE</span>
+              <span class="mod-files">external/shapeit4.py</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /grid-2 -->
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 5 — PARSEURS
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">5</div>
+      <div class="lv-name">Parseurs</div>
+    </div>
+    <div class="lv-bar" style="background:#34d399;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Lecture des sorties d'outils → structures Python typées (DataFrames / dataclasses) — tous stubs ⬜</div>
+      <div class="mods">
+
+        <div class="mod stub">
+          <span class="mod-name">PLINK parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">.log · .frq · .hwe · .missing → DataFrame pandas</span>
+          <span class="mod-files">parsers/plink_parser.py</span>
+        </div>
+        <div class="mod stub">
+          <span class="mod-name">KING parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">.kin · .kin0 → matrice de parenté typée</span>
+          <span class="mod-files">parsers/king_parser.py</span>
+        </div>
+        <div class="mod stub">
+          <span class="mod-name">ADMIXTURE parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">.Q · .P → proportions ancestrales par individu</span>
+          <span class="mod-files">parsers/admixture_parser.py</span>
+        </div>
+        <div class="mod stub">
+          <span class="mod-name">PCA parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">.eigenvec · .eigenval → coordonnées et variance expliquée</span>
+          <span class="mod-files">parsers/pca_parser.py</span>
+        </div>
+        <div class="mod stub">
+          <span class="mod-name">ROH parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">.hom → longueurs ROH (Mb), comptage, consanguinité par individu</span>
+          <span class="mod-files">parsers/roh_parser.py</span>
+        </div>
+        <div class="mod stub">
+          <span class="mod-name">Imputation parser <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Scores r² BEAGLE → qualité d'imputation par SNP</span>
+          <span class="mod-files">parsers/imputation_parser.py</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 6 — SERVICES MÉTIER
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">6</div>
+      <div class="lv-name">Services<br>Métier</div>
+    </div>
+    <div class="lv-bar" style="background:#22d3ee;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Logique applicative — orchestrent core + database + storage · AUCUNE commande shell ici — tous stubs ⬜</div>
+      <div class="mods">
+
+        <div class="mod svc">
+          <span class="mod-name">DatasetService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Chargement et validation des jeux de données d'entrée</span>
+          <span class="mod-files">services/dataset_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">FileService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Upload, validation format, registre des fichiers (checksums)</span>
+          <span class="mod-files">services/file_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">ProjectService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">CRUD projets et cohortes, gouvernance</span>
+          <span class="mod-files">services/project_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">SampleService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Gestion individus anonymisés, inclusion/exclusion</span>
+          <span class="mod-files">services/sample_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">RunService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Création et suivi des runs d'analyse · liaison job ↔ SQL</span>
+          <span class="mod-files">services/run_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">SelectionService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Logique de sélection panel WGS : appelle core/selection, applique quotas, valide IBD</span>
+          <span class="mod-files">services/selection_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">ResultService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Agrégation métriques, persistance en SQL et fichiers</span>
+          <span class="mod-files">services/result_service.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">ReportService <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Déclenche reporting/ depuis un run figé · appelle html/pdf/markdown</span>
+          <span class="mod-files">services/report_service.py</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 7 — PERSISTANCE
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">7</div>
+      <div class="lv-name">Persist-<br>ance</div>
+    </div>
+    <div class="lv-bar" style="background:#a78bfa;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Base de données PostgreSQL (optionnelle) + Stockage fichiers structuré</div>
+      <div class="grid-2">
+
+        <!-- 7a : database -->
+        <div class="sub-panel">
+          <div class="sub-panel-title" style="color:#a78bfa;">7a — database/ · ORM SQLAlchemy + PostgreSQL</div>
+          <div class="mods col">
+            <div class="mod db">
+              <span class="mod-name">Modèles SQL <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">Tables : Project · Cohort · Sample · InputFile · AnalysisJob · AnalysisStep · QCMetrics · PCAProjection · AuditEvent · JobLog</span>
+              <span class="mod-files">database/models.py · database/base.py</span>
+            </div>
+            <div class="mod db">
+              <span class="mod-name">Repositories <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">JobRepository · AuditRepository — isolation totale du SQL · patterns Repository</span>
+              <span class="mod-files">database/repositories.py</span>
+            </div>
+            <div class="mod db">
+              <span class="mod-name">Session / Engine <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">build_engine() depuis GENORUN_DATABASE_URL · session_scope() context manager avec commit / rollback auto</span>
+              <span class="mod-files">database/session.py · database/init_db.py</span>
+            </div>
+            <div class="mod db">
+              <span class="mod-name">Migrations Alembic <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">0001_initial_schema · revision --autogenerate · upgrade head · jamais de DROP non contrôlé</span>
+              <span class="mod-files">alembic/ · alembic.ini</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7b : stockage fichiers -->
+        <div class="sub-panel">
+          <div class="sub-panel-title" style="color:#34d399;">7b — Stockage fichiers (runtime)</div>
+          <div class="mods col">
+            <div class="mod stor">
+              <span class="mod-name">work/runs/&lt;run_id&gt;/ <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">Répertoire de run généré par JobManager : config.yaml · manifest.json · status.json · logs/pipeline.log</span>
+              <span class="mod-files">work/ (gitignored)</span>
+            </div>
+            <div class="mod cfg">
+              <span class="mod-name">Config YAML <span class="tag tag-ok">OK</span></span>
+              <span class="mod-desc">validation.yaml (seuils QC/MAF/HWE) · tools.yaml · paths.yaml · profiles.yaml A/C/D · strategies.yaml · demo_chr22.yaml</span>
+              <span class="mod-files">config/</span>
+            </div>
+            <div class="mod stor">
+              <span class="mod-name">Module storage <span class="tag tag-stub">stub</span></span>
+              <span class="mod-desc">paths.py · checksums.py · file_registry.py · cleanup.py — à implémenter (stubs)</span>
+              <span class="mod-files">storage/</span>
+            </div>
+            <div class="mod stor">
+              <span class="mod-name">results/ · logs/ · reports/</span>
+              <span class="mod-desc">Sorties consolidées, journaux applicatifs, rapports exportés — dossiers créés au runtime</span>
+              <span class="mod-files">results/ · logs/ · reports/</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="lv-arrow">↓</div>
+
+
+  <!-- ────────────────────────────────────────
+       NIVEAU 8 — RAPPORTS & SORTIES FINALES
+  ──────────────────────────────────────── -->
+  <div class="lv-row">
+    <div class="lv-sidebar">
+      <div class="lv-num">8</div>
+      <div class="lv-name">Rapports<br>&amp; Sorties</div>
+    </div>
+    <div class="lv-bar" style="background:#f472b6;"></div>
+    <div class="lv-content">
+      <div class="lv-title">Génération de rapports déterministes depuis un run figé — tous stubs ⬜ (Phase 6 roadmap)</div>
+      <div class="mods">
+
+        <div class="mod rpt">
+          <span class="mod-name">HTML Report <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Rapport interactif : palette teal/navy/coral · figures Plotly · exportable en PDF</span>
+          <span class="mod-files">reporting/html_report.py · reporting/templates/report_summary.md</span>
+        </div>
+        <div class="mod rpt">
+          <span class="mod-name">PDF Report <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Export imprimable du rapport de validation — rendu depuis HTML ou WeasyPrint</span>
+          <span class="mod-files">reporting/pdf_report.py</span>
+        </div>
+        <div class="mod rpt">
+          <span class="mod-name">Markdown Report <span class="tag tag-stub">stub</span></span>
+          <span class="mod-desc">Rapport texte reproductible · archivable en git · lisible sans navigateur</span>
+          <span class="mod-files">reporting/markdown_report.py</span>
+        </div>
+        <div class="mod svc">
+          <span class="mod-name">Vues web — résultats (Phase 7)</span>
+          <span class="mod-desc">Pages données / comparaison / rapports dans l'interface Flask · rendu SVG serveur · à construire</span>
+          <span class="mod-files">web/templates/ (partiel)</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /pipeline -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION TRANSVERSALE
+═══════════════════════════════════════════════════════ -->
+<div class="transversal">
+  <div class="lv-content">
+    <div class="lv-title">⚙ Éléments transversaux — disponibles à toutes les couches</div>
+    <div class="mods">
+
+      <div class="mod cfg">
+        <span class="mod-name">Dépendances (pyproject.toml)</span>
+        <span class="mod-desc">Flask · SQLAlchemy · Alembic · pandas · numpy · scipy · scikit-learn · Plotly · Typer · Jinja2 · psycopg3 · pydantic-settings · rich</span>
+        <span class="mod-files">pyproject.toml · requirements.txt · environment.yml</span>
+      </div>
+
+      <div class="mod cfg">
+        <span class="mod-name">CI / Linting (GitHub Actions)</span>
+        <span class="mod-desc">compileall + ruff + mypy + pytest-cov · pre-commit : ruff, anti-large-files, detect-private-key</span>
+        <span class="mod-files">.github/workflows/ci.yml · .pre-commit-config.yaml</span>
+      </div>
+
+      <div class="mod impl">
+        <span class="mod-name">Tests (26 fichiers) <span class="tag tag-ok">OK</span></span>
+        <span class="mod-desc">Infrastructure · commandes · jobs · database · pipeline · validators · sans données réelles, sans outil bioinfo réel</span>
+        <span class="mod-files">tests/ · tests/conftest.py</span>
+      </div>
+
+      <div class="mod impl">
+        <span class="mod-name">Documentation</span>
+        <span class="mod-desc">AGENTS.md (autorité) · CLAUDE.md (opérationnel) · CODE_INDEX.md · DEV_TRACKING.md · ROADMAP.md · 9 docs thématiques · notebooks/</span>
+        <span class="mod-files">docs/ · AGENTS.md · CLAUDE.md</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════ -->
+<footer>
+  Validation_Selection_GR · Génome Réunion · Architecture générée le 2026-06-15 ·
+  <span class="ok">✅ Implémenté</span> ·
+  <span class="stub">⬜ Stub (bordure pointillée = à implémenter)</span> ·
+  ⭐ = module scientifique critique
+</footer>
+
+</body>
+</html>
