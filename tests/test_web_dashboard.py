@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from web import create_app
 
 
@@ -51,3 +52,36 @@ def test_dashboard_phase0_can_create_and_poll_job(monkeypatch, tmp_path: Path):
     assert status_response.status_code == 200
     assert status_payload["job_id"] == payload["job_id"]
     assert status_payload["status"] == "queued"
+
+
+@pytest.mark.parametrize(
+    ("path", "title"),
+    [
+        ("/configuration", "Configuration"),
+        ("/donnees", "Données"),
+        ("/qc", "QC"),
+        ("/pca", "PCA"),
+        ("/admixture", "ADMIXTURE"),
+        ("/king-ibd", "KING/IBD"),
+        ("/roh", "ROH"),
+        ("/selection-wgs", "Sélection WGS"),
+        ("/imputation", "Imputation"),
+        ("/rapport", "Rapport"),
+    ],
+)
+def test_theme_pages_render_placeholder_workspace(monkeypatch, tmp_path: Path, path: str, title: str):
+    """Vérifie que chaque item de navigation ouvre une page Flask dédiée."""
+    monkeypatch.setenv("GENORUN_ENABLE_DATABASE", "false")
+    monkeypatch.setenv("GENORUN_RUNS_ROOT", str(tmp_path / "runs"))
+
+    app = create_app()
+    client = app.test_client()
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    html = response.get_data(as_text=True)
+    assert f"<h1>{title}</h1>" in html
+    assert f"<h2>{title}</h2>" in html
+    assert "Phase 0 — structure UI" in html
+    assert "Le contenu détaillé sera ajouté" in html

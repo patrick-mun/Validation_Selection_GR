@@ -17,3 +17,4 @@ dependencies:
   - shapeit4
   - pip:
       - -r requirements.txt
+      - -r requirements-dev.txt

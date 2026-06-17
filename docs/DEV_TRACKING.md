@@ -458,3 +458,54 @@ pytest -q tests/test_cli.py tests/test_jobs.py tests/test_web_dashboard.py
 | `curl -I http://localhost:8000` | `200 OK` |
 | `genorun-validation jobs --help` | Commandes `create`, `worker`, `list` visibles |
 | `genorun-validation jobs create --dataset dataset_inconnu` | Erreur contrôlée : dataset refusé avant création de job |
+
+---
+
+## 14. Session 2026-06-17 — Outillage qualité Docker et isolation pytest
+
+### Correction appliquée
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Installation explicite des outils qualité dans l'environnement conda Docker via `requirements-dev.txt` | `requirements-dev.txt`, `environment.yml`, `Dockerfile` | Fait |
+| 2026-06-17 | Les tests forcent `GENORUN_ENABLE_DATABASE=false` et une URL SQLite en mémoire pour ne pas écrire dans la file PostgreSQL de développement | `tests/conftest.py` | Fait |
+| 2026-06-17 | La documentation Docker vérifie maintenant la présence de l'outillage qualité via `ruff --version` sans masquer la dette de formatage globale | `docs/DOCKER_GUIDE_BEGINNER.md`, `docs/CODE_INDEX.md` | Fait |
+
+### Dette identifiée
+
+| Date | Sujet | Impact | Suite |
+|---|---|---|---|
+| 2026-06-17 | Le contrôle global `ruff format --check src scripts web tests` demande une normalisation large du dépôt | Le formatage global est hors périmètre des points 1 et 2 | Prévoir une passe dédiée avant de rendre `ruff format --check` bloquant |
+
+### Critère attendu pour les points 1 et 2
+
+```bash
+docker compose build genorun-app genorun-worker
+docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation pytest -q
+docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation ruff --version
+```
+
+---
+
+## 15. Session 2026-06-17 — Navigation web multi-pages phase 0
+
+### Décision d'interface
+
+Le tableau de bord reste la page de synthèse et de lancement rapide. Chaque item
+de navigation ouvre désormais une vraie page Flask dédiée, avec le même cadre
+commun : sidebar, barre d'en-tête et grand espace blanc de travail. Le contenu
+métier détaillé de chaque page reste volontairement à définir avant
+implémentation.
+
+### Correction appliquée
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Menu latéral branché sur de vraies routes thématiques au lieu de liens `#` | `web/templates/base.html`, `web/routes.py` | Fait |
+| 2026-06-17 | Squelette commun de page thématique avec grand encart blanc | `web/templates/theme_page.html`, `web/static/css/app.css` | Fait |
+| 2026-06-17 | Tests Flask ajoutés pour vérifier que chaque page thématique répond `200` | `tests/test_web_dashboard.py` | Fait |
+
+### Garde-fou
+
+Cette session ne modifie pas le pipeline, les paramètres scientifiques, les
+wrappers bioinformatiques ni le flux de création de job.

@@ -5,9 +5,10 @@ Contrat d'architecture (AGENTS.md §2) :
   commande bioinformatique ni de shell, et ne bloque pas sur l'analyse ;
 - l'exécution est faite par le worker ; le front interroge le statut en JSON.
 """
+
 from __future__ import annotations
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, abort, jsonify, render_template, request
 
 from genorun_validation.jobs.manager import get_default_job_manager
 from genorun_validation.jobs.schemas import JobStatus
@@ -21,8 +22,72 @@ from genorun_validation.utils.validators import ValidationError, validate_identi
 
 bp = Blueprint("main", __name__)
 
+NAV_ITEMS = [
+    {"key": "dashboard", "label": "Tableau de bord", "href": "/"},
+    {"key": "configuration", "label": "Configuration", "href": "/configuration"},
+    {"key": "donnees", "label": "Données", "href": "/donnees"},
+    {"key": "qc", "label": "QC", "href": "/qc"},
+    {"key": "pca", "label": "PCA", "href": "/pca"},
+    {"key": "admixture", "label": "ADMIXTURE", "href": "/admixture"},
+    {"key": "king-ibd", "label": "KING/IBD", "href": "/king-ibd"},
+    {"key": "roh", "label": "ROH", "href": "/roh"},
+    {"key": "selection-wgs", "label": "Sélection WGS", "href": "/selection-wgs"},
+    {"key": "imputation", "label": "Imputation", "href": "/imputation"},
+    {"key": "rapport", "label": "Rapport", "href": "/rapport"},
+]
+
+THEME_PAGES = {
+    "configuration": {
+        "title": "Configuration",
+        "summary": "Espace prévu pour choisir les paramètres encadrés : puce SNP, génomes de référence, profils et stratégies.",
+    },
+    "donnees": {
+        "title": "Données",
+        "summary": "Espace prévu pour présenter les jeux de données, chemins contrôlés, checksums et statuts d'import.",
+    },
+    "qc": {
+        "title": "QC",
+        "summary": "Espace prévu pour détailler les contrôles qualité SNP et individus, exclusions et métriques associées.",
+    },
+    "pca": {
+        "title": "PCA",
+        "summary": "Espace prévu pour les projections PCA, paramètres, panels de référence et graphiques d'audit.",
+    },
+    "admixture": {
+        "title": "ADMIXTURE",
+        "summary": "Espace prévu pour les scénarios K, CV-error, proportions ancestrales et comparaison de runs.",
+    },
+    "king-ibd": {
+        "title": "KING/IBD",
+        "summary": "Espace prévu pour les seuils de parenté, exclusions, contrôles IBD et traçabilité des apparentés.",
+    },
+    "roh": {
+        "title": "ROH",
+        "summary": "Espace prévu pour les paramètres ROH, longueurs cumulées et distributions par individu.",
+    },
+    "selection-wgs": {
+        "title": "Sélection WGS",
+        "summary": "Espace prévu pour les quotas, scores S_div, bras découverte et justification individuelle.",
+    },
+    "imputation": {
+        "title": "Imputation",
+        "summary": "Espace prévu pour le mode simulation ou imputation réelle, les panels et les métriques de performance.",
+    },
+    "rapport": {
+        "title": "Rapport",
+        "summary": "Espace prévu pour générer, auditer et exporter les rapports HTML, PDF ou Markdown.",
+    },
+}
+
+
+@bp.context_processor
+def inject_navigation() -> dict[str, object]:
+    """Expose la navigation commune à tous les templates Flask."""
+    return {"nav_items": NAV_ITEMS}
+
 
 @bp.get("/")
+@bp.get("/dashboard")
 def dashboard():
     """Tableau de bord : liste des derniers runs."""
     manager = get_default_job_manager()
@@ -33,6 +98,21 @@ def dashboard():
         dataset_choices=DATASET_CHOICES,
         profile_choices=PROFILE_CHOICES,
         strategy_choices=STRATEGY_CHOICES,
+        active_page="dashboard",
+    )
+
+
+@bp.get("/<page_slug>")
+def theme_page(page_slug: str):
+    """Affiche une page thématique vide, prête pour la conception UI détaillée."""
+    page = THEME_PAGES.get(page_slug)
+    if page is None:
+        abort(404)
+    return render_template(
+        "theme_page.html",
+        active_page=page_slug,
+        page_title=page["title"],
+        page_summary=page["summary"],
     )
 
 
@@ -102,4 +182,4 @@ def run_detail(run_id: str):
     except (FileNotFoundError, KeyError):
         return render_template("dashboard.html", jobs=[]), 404
     log_tail = manager.tail_log(job, max_lines=80)
-    return render_template("run_detail.html", job=job, log_tail=log_tail)
+    return render_template("run_detail.html", job=job, log_tail=log_tail, active_page="dashboard")

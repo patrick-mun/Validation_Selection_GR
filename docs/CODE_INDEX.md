@@ -132,8 +132,9 @@ Les fichiers suivants existent comme points d'ancrage. Ils sont encore minimalis
 |---|---|
 | `web/__init__.py` | Factory Flask `create_app()` |
 | `web/wsgi.py` | Point d'entrée gunicorn |
-| `web/routes.py` | Tableau de bord, création de job (POST), statut JSON, détail de run |
+| `web/routes.py` | Tableau de bord, pages thématiques, création de job (POST), statut JSON, détail de run |
 | `web/templates/dashboard.html` | Tableau de bord + lancement (vanilla) |
+| `web/templates/theme_page.html` | Squelette commun des pages thématiques phase 0 |
 | `web/templates/run_detail.html` | Détail d'un run : étapes, logs |
 | `web/static/js/app.js` | Soumission + polling du statut (vanilla) |
 | `web/static/css/app.css` | Styles (palette teal/navy/coral) |
@@ -288,6 +289,7 @@ pytest -q
 | Lint & format | `pyproject.toml` `[tool.ruff]` | Règles ruff (E,F,I,UP,B,SIM,PTH). |
 | Typage | `pyproject.toml` `[tool.mypy]` | Strict sur `core/` et `contracts`, permissif ailleurs. |
 | Couverture | `pyproject.toml` `[tool.coverage]` | Mesure de couverture (seuil relevé phase par phase). |
+| Dépendances qualité Docker | `requirements-dev.txt`, `environment.yml`, `Dockerfile` | Installe ruff, mypy, pytest-cov et pre-commit dans l'environnement conda Docker. |
 | Hooks pré-commit | `.pre-commit-config.yaml` | ruff, anti-gros-fichiers, détection de clé privée. |
 | Intégration continue | `.github/workflows/ci.yml` | compileall + ruff + pytest sur chaque PR. |
 
@@ -317,8 +319,8 @@ pytest -q
 |---|---|---|
 | Factory Flask | `web/__init__.py` | `create_app()` : configure l'app, enregistre le blueprint. |
 | Point d'entrée WSGI | `web/wsgi.py` | Cible gunicorn : `gunicorn web.wsgi:app`. |
-| Routes | `web/routes.py` | `/`, `POST /api/jobs`, `GET /api/jobs/<id>/status`, `/runs/<id>`. |
-| Templates | `web/templates/` | `base.html`, `dashboard.html`, `run_detail.html` (HTML vanilla). |
+| Routes | `web/routes.py` | `/`, `/configuration`, `/donnees`, pages thématiques, `POST /api/jobs`, `GET /api/jobs/<id>/status`, `/runs/<id>`. |
+| Templates | `web/templates/` | `base.html`, `dashboard.html`, `theme_page.html`, `run_detail.html` (HTML vanilla). |
 | Styles | `web/static/css/app.css` | CSS vanilla, palette teal/navy/coral. |
 | Front | `web/static/js/app.js` | JS vanilla : soumission + polling du statut. |
 

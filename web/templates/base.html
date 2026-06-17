@@ -10,25 +10,16 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Navigation principale">
       <div class="sidebar-brand">
-        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Génome Réunion">
-        <div>
-          <strong>Génome Réunion</strong>
-          <span>Validation Pipeline</span>
+        <div class="brand-logo-card">
+          <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Génome Réunion">
         </div>
+        <strong>Validation et sélection</strong>
       </div>
 
       <nav class="side-nav">
-        <a class="active" href="/">Tableau de bord</a>
-        <a href="#">Configuration</a>
-        <a href="#">Données</a>
-        <a href="#">QC</a>
-        <a href="#">PCA</a>
-        <a href="#">ADMIXTURE</a>
-        <a href="#">KING/IBD</a>
-        <a href="#">ROH</a>
-        <a href="#">Sélection WGS</a>
-        <a href="#">Imputation</a>
-        <a href="#">Rapport</a>
+        {% for item in nav_items %}
+        <a class="{% if active_page|default('dashboard') == item.key %}active{% endif %}" href="{{ item.href }}">{{ item.label }}</a>
+        {% endfor %}
       </nav>
 
       <div class="sidebar-user">

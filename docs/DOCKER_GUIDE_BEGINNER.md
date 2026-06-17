@@ -162,9 +162,14 @@ docker compose logs -f genorun-app
 docker compose logs -f genorun-worker
 docker compose exec genorun-app conda run -n genorun-validation python -c "import genorun_validation; print(genorun_validation.__version__)"
 docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation pytest -q
+docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation ruff --version
 ```
 
 La commande d'import ci-dessus vérifie que le package `src/genorun_validation` a bien été installé en mode éditable dans l'image Docker.
+La commande `ruff --version` vérifie que l'image contient aussi l'outillage
+qualité utilisé par la CI et la phase 0. Les contrôles globaux `ruff check` et
+`ruff format --check` doivent rester des objectifs de qualité, mais ils peuvent
+révéler une dette de formatage existante tant que le dépôt n'a pas été normalisé.
 
 ## Diagnostic rapide
 

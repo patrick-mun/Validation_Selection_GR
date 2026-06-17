@@ -31,67 +31,84 @@ body{
 a{color:var(--teal-dark);text-decoration:none}
 button,select,input{font:inherit}
 
-.app-shell{min-height:100vh;display:grid;grid-template-columns:260px minmax(0,1fr)}
+.app-shell{min-height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}
 .sidebar{
   position:sticky;
   top:0;
   height:100vh;
   display:flex;
   flex-direction:column;
-  padding:22px 16px;
+  padding:18px 14px;
   color:#e8fbfb;
   background:
     linear-gradient(180deg,rgba(6,43,58,.98),rgba(0,88,92,.95)),
     radial-gradient(circle at 30% 10%,rgba(28,184,166,.35),transparent 30%);
   box-shadow:8px 0 32px rgba(6,43,58,.18);
 }
-.sidebar-brand{display:flex;gap:12px;align-items:center;margin-bottom:26px}
-.sidebar-brand img{width:78px;height:auto;filter:drop-shadow(0 8px 18px rgba(0,0,0,.22))}
-.sidebar-brand strong{display:block;font-size:20px;line-height:1.1}
-.sidebar-brand span{display:block;color:#b8d6db;font-size:14px;margin-top:2px}
-.side-nav{display:flex;flex-direction:column;gap:6px}
+.sidebar-brand{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+  margin-bottom:18px;
+}
+.brand-logo-card{
+  display:flex;
+  align-items:center;
+  width:100%;
+  padding:8px 10px;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+.sidebar-brand img{display:block;width:100%;height:auto;max-width:166px}
+.sidebar-brand strong{
+  display:block;
+  color:#d7edf0;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.side-nav{display:flex;flex-direction:column;gap:2px}
 .side-nav a{
   display:flex;
   align-items:center;
-  gap:10px;
-  min-height:46px;
-  padding:0 16px;
-  border-radius:12px;
+  min-height:34px;
+  padding:0 10px;
+  border-radius:8px;
   color:#d7edf0;
+  font-size:15px;
   font-weight:600;
 }
 .side-nav a::before{
-  content:"";
-  width:18px;
-  height:18px;
-  border:2px solid currentColor;
-  border-radius:5px;
-  opacity:.85;
+  content:none;
 }
 .side-nav a.active{
   color:#fff;
-  background:rgba(33,166,159,.68);
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  background:rgba(33,166,159,.24);
+  box-shadow:inset 3px 0 0 rgba(120,231,222,.92);
 }
+.side-nav a:hover{background:rgba(255,255,255,.08)}
 .sidebar-user{
   margin-top:auto;
   display:flex;
-  gap:12px;
+  gap:10px;
   align-items:center;
-  padding:14px 10px;
+  padding:12px 8px;
   border-top:1px solid rgba(255,255,255,.16);
 }
 .avatar{
   display:grid;
   place-items:center;
-  width:42px;
-  height:42px;
+  width:34px;
+  height:34px;
   border:2px solid rgba(255,255,255,.75);
   border-radius:50%;
   font-weight:800;
 }
-.sidebar-user strong{display:block;color:#fff}
-.sidebar-user span:not(.avatar){display:block;color:#bfdde1;font-size:13px}
+.sidebar-user strong{display:block;color:#fff;font-size:15px}
+.sidebar-user span:not(.avatar){display:block;color:#bfdde1;font-size:12px}
 
 .main-panel{min-width:0}
 .topbar{
@@ -201,6 +218,42 @@ select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,143,143,.12)}
   margin:0 0 12px;
   color:var(--muted);
   font-size:14px;
+}
+.workspace-panel{
+  min-height:calc(100vh - 150px);
+  padding:34px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
+.workspace-empty{
+  max-width:760px;
+}
+.workspace-kicker{
+  display:inline-block;
+  margin-bottom:12px;
+  color:var(--teal-dark);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.workspace-empty h2{
+  margin:0 0 10px;
+  color:var(--ink);
+  font-size:28px;
+  line-height:1.15;
+}
+.workspace-empty p{
+  margin:0;
+  color:var(--muted);
+  font-size:16px;
+}
+.workspace-note{
+  margin-top:18px!important;
+  padding-top:18px;
+  border-top:1px solid var(--line);
 }
 
 .pipeline-strip{
@@ -422,7 +475,8 @@ th{color:var(--muted);font-weight:800}
 @media (max-width:1180px){
   .app-shell{grid-template-columns:1fr}
   .sidebar{position:relative;height:auto;padding:14px 18px}
-  .sidebar-brand img{width:56px}
+  .sidebar-brand{max-width:260px}
+  .sidebar-brand img{max-width:180px}
   .side-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
   .sidebar-user{display:none}
   .launch-panel{grid-template-columns:repeat(2,minmax(0,1fr))}

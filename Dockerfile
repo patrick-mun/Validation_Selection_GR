@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # WHY: copied first to cache the environment layer. The editable install is
 # executed after COPY . . because it needs the full source tree.
-COPY environment.yml requirements.txt pyproject.toml ./
+COPY environment.yml requirements.txt requirements-dev.txt pyproject.toml ./
 RUN conda env create -f environment.yml && conda clean -afy
 
 COPY . .
