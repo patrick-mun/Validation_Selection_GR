@@ -7,13 +7,58 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
-  <header class="topbar">
-    <span class="brand">Génome Réunion</span>
-    <span class="sub">Validation Pipeline</span>
-  </header>
-  <main class="wrap">
-    {% block content %}{% endblock %}
-  </main>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="sidebar-brand">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="Génome Réunion">
+        <div>
+          <strong>Génome Réunion</strong>
+          <span>Validation Pipeline</span>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <a class="active" href="/">Tableau de bord</a>
+        <a href="#">Configuration</a>
+        <a href="#">Données</a>
+        <a href="#">QC</a>
+        <a href="#">PCA</a>
+        <a href="#">ADMIXTURE</a>
+        <a href="#">KING/IBD</a>
+        <a href="#">ROH</a>
+        <a href="#">Sélection WGS</a>
+        <a href="#">Imputation</a>
+        <a href="#">Rapport</a>
+      </nav>
+
+      <div class="sidebar-user">
+        <span class="avatar" aria-hidden="true">C</span>
+        <div>
+          <strong>Chercheur</strong>
+          <span>Profil C</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main-panel">
+      <header class="topbar">
+        <button class="icon-button" type="button" aria-label="Menu">☰</button>
+        <div class="title-block">
+          <h1>{% block page_title %}Validation de la sélection WGS{% endblock %}</h1>
+          <span class="project-status"><span></span> Projet actif</span>
+        </div>
+        <div class="top-actions" aria-label="Actions rapides">
+          <button class="icon-button" type="button" aria-label="Aide">?</button>
+          <button class="icon-button" type="button" aria-label="Notifications">!</button>
+          <button class="icon-button" type="button" aria-label="Paramètres">☼</button>
+        </div>
+      </header>
+
+      <main class="wrap">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

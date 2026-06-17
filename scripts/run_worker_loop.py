@@ -31,9 +31,15 @@ def main() -> int:
     worker = LocalPipelineWorker(manager=manager, delay_seconds=args.delay)
 
     while True:
-        # PostgreSQL sert de file officielle quand la base est activée ; sinon
-        # le worker retombe sur le scan filesystem des status.json.
-        runnable_jobs = manager.list_runnable_jobs(limit=100)
+        # WHY: PostgreSQL sert de file officielle quand la base est activée.
+        # WHY: En mode local sans base, le worker retombe sur les status.json.
+        try:
+            runnable_jobs = manager.list_runnable_jobs(limit=100)
+        # SAFETY: au démarrage Docker, le worker peut arriver avant la fin des migrations.
+        except Exception as exc:  # pragma: no cover
+            print(f"[WORKER_QUEUE_WAIT] File de jobs indisponible : {exc}", file=sys.stderr)
+            time.sleep(args.poll_seconds)
+            continue
         for job in runnable_jobs:
             try:
                 worker.run(job.job_id)

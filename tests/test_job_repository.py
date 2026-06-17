@@ -29,7 +29,7 @@ def test_job_manager_can_index_job_in_database(tmp_path: Path):
         session_factory=Session,
     )
 
-    job = manager.create_job("1000G chr22", "Profil C", "Géo-ancestrale + découverte")
+    job = manager.create_job("1000G_chr22", "profil_C", "geo_ancestrale_decouverte")
     manager.update_status(job, JobStatus.QUEUED, "Test queued")
 
     with Session() as session:
@@ -51,9 +51,9 @@ def test_job_manager_lists_runnable_jobs_from_database(tmp_path: Path):
         session_factory=Session,
     )
 
-    queued = manager.create_job("1000G chr22", "Profil C", "Géo-ancestrale + découverte")
+    queued = manager.create_job("1000G_chr22", "profil_C", "geo_ancestrale_decouverte")
     manager.update_status(queued, JobStatus.QUEUED, "À traiter")
-    completed = manager.create_job("1000G chr22", "Profil C", "Géo-ancestrale + découverte")
+    completed = manager.create_job("1000G_chr22", "profil_C", "geo_ancestrale_decouverte")
     manager.update_status(completed, JobStatus.COMPLETED, "Déjà traité")
 
     job_ids = [job.job_id for job in manager.list_runnable_jobs(limit=20)]

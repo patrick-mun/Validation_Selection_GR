@@ -11,6 +11,12 @@ from flask import Blueprint, jsonify, render_template, request
 
 from genorun_validation.jobs.manager import get_default_job_manager
 from genorun_validation.jobs.schemas import JobStatus
+from genorun_validation.utils.launch_parameters import (
+    DATASET_CHOICES,
+    PROFILE_CHOICES,
+    STRATEGY_CHOICES,
+    validate_launch_parameters,
+)
 from genorun_validation.utils.validators import ValidationError, validate_identifier
 
 bp = Blueprint("main", __name__)
@@ -21,7 +27,13 @@ def dashboard():
     """Tableau de bord : liste des derniers runs."""
     manager = get_default_job_manager()
     jobs = manager.list_jobs(limit=20)
-    return render_template("dashboard.html", jobs=jobs)
+    return render_template(
+        "dashboard.html",
+        jobs=jobs,
+        dataset_choices=DATASET_CHOICES,
+        profile_choices=PROFILE_CHOICES,
+        strategy_choices=STRATEGY_CHOICES,
+    )
 
 
 @bp.post("/api/jobs")
@@ -32,14 +44,20 @@ def create_job():
     """
     payload = request.get_json(silent=True) or request.form
     try:
-        dataset = validate_identifier(str(payload.get("dataset", "")), field_name="dataset")
-        profile = validate_identifier(str(payload.get("profile", "")), field_name="profile")
-        strategy = validate_identifier(str(payload.get("strategy", "")), field_name="strategy")
+        launch_parameters = validate_launch_parameters(
+            dataset=str(payload.get("dataset", "")),
+            profile=str(payload.get("profile", "")),
+            strategy=str(payload.get("strategy", "")),
+        )
     except ValidationError as exc:
         return jsonify({"error": str(exc)}), 400
 
     manager = get_default_job_manager()
-    job = manager.create_job(dataset=dataset, profile=profile, strategy=strategy)
+    job = manager.create_job(
+        dataset=launch_parameters.dataset,
+        profile=launch_parameters.profile,
+        strategy=launch_parameters.strategy,
+    )
     # WHY: l'interface met le job en file ; le worker externe l'exécutera.
     manager.update_status(job, JobStatus.QUEUED, "Job mis en file depuis l'interface web.")
     return jsonify({"job_id": job.job_id, "status": job.status.value}), 201

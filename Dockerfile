@@ -16,4 +16,4 @@ RUN conda run --no-capture-output -n genorun-validation python -m pip install -e
 
 EXPOSE 8000
 
-CMD ["conda", "run", "--no-capture-output", "-n", "genorun-validation", "bash", "-lc", "alembic upgrade head && gunicorn web.wsgi:app --bind 0.0.0.0:8000 --workers 2"]
+CMD ["conda", "run", "--no-capture-output", "-n", "genorun-validation", "sh", "-c", "python -m alembic upgrade head && python -m gunicorn web.wsgi:app --bind 0.0.0.0:8000 --workers 2"]

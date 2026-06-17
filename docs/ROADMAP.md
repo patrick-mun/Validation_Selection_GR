@@ -80,6 +80,33 @@ Sous-étapes :
 
 > **Porte de phase 0 → 1 : étape à tester avant la suivante.**
 
+### État local 2026-06-17 — clôture phase 0
+
+| Porte | Statut local | Preuve attendue |
+|---|---|---|
+| 0.1 Gouvernance | REVIEW | `AGENTS.md`, `CODE_INDEX.md`, `DEV_TRACKING.md`, `ROADMAP.md` relus et cohérents pour le socle Docker/PostgreSQL/web dry-run. |
+| 0.2 Outillage qualité | REVIEW | `pytest`, `ruff`, `mypy`, `coverage` et CI sont configurés ; les commandes doivent rester vertes avant merge. |
+| 0.3 CI/CD | REVIEW | Workflow GitHub Actions présent ; validation distante à confirmer sur PR réelle. |
+| 0.4 Contrats d'interface | REVIEW | `contracts.py` et `orchestration/` existent ; aucune étape bioinfo réelle n'est encore branchée. |
+| 0.5 Harnais de test & dry-run | DONE | Worker dry-run, tests Flask/jobs/DB, et run local Docker validés sans données réelles. |
+| 0.6 Sécurité socle | REVIEW | Validation des identifiants, chemins, allowlist exécutables et refus de shell libre couverts par tests existants. |
+
+Commandes locales de clôture :
+
+```bash
+python3 -m compileall src scripts web
+docker compose config
+docker compose up --build -d
+docker compose ps
+curl -I http://localhost:8000
+PGPASSWORD=change-me-local-dev psql -h localhost -p 55432 -U genorun -d genorun_validation -c "\dt"
+docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation pytest -q
+```
+
+Critère de passage vers la phase 1 : les commandes ci-dessus passent, DBeaver
+voit `analysis_jobs` sur `localhost:55432`, et les sorties web restent
+explicitement marquées `dry-run`/démonstration.
+
 ---
 
 ## Phase 1 — Wrappers outils externes (`external/`)

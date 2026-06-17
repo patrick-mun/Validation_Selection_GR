@@ -12,13 +12,14 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from genorun_validation.jobs.manager import JobManager  # noqa: E402
+from genorun_validation.utils.launch_parameters import DEFAULT_DATASET, DEFAULT_PROFILE, DEFAULT_STRATEGY  # noqa: E402
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Création d'un job local de démonstration")
-    parser.add_argument("--dataset", default="1000G chr22")
-    parser.add_argument("--profile", default="Profil C")
-    parser.add_argument("--strategy", default="Géo-ancestrale + découverte")
+    parser.add_argument("--dataset", default=DEFAULT_DATASET)
+    parser.add_argument("--profile", default=DEFAULT_PROFILE)
+    parser.add_argument("--strategy", default=DEFAULT_STRATEGY)
     args = parser.parse_args()
 
     job = JobManager(project_root=PROJECT_ROOT).create_job(

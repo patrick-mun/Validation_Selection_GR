@@ -73,7 +73,7 @@ Règles :
 
 | Statut | Tâche | Fichiers | Tests attendus |
 |---|---|---|---|
-| TODO | Ajouter validation stricte de `dataset`, `profile`, `strategy` | `jobs/manager.py`, `config/*.yaml` | `tests/test_jobs.py` |
+| DONE | Ajouter validation stricte de `dataset`, `profile`, `strategy` | `jobs/manager.py`, `utils/launch_parameters.py` | `tests/test_jobs.py`, `tests/test_cli.py` |
 | TODO | Ajouter manifest détaillé par étape | `jobs/worker.py`, `jobs/manager.py` | Vérifier présence paramètres, timestamps, fichiers |
 | TODO | Distinguer clairement logs pipeline, stdout outil et stderr outil | `jobs/worker.py`, `external/command_runner.py` | Test retour erreur outil |
 | TODO | Ajouter option d'annulation ou verrouillage anti-double lancement | `jobs/manager.py`, `worker.py` | Test job déjà running |
@@ -307,3 +307,154 @@ Résultat local sandbox : 26 tests passés. Les tests SQLAlchemy restent conditi
 - `docker compose up --build` avec un vrai Docker local.
 - `alembic upgrade head` sur PostgreSQL réel.
 - Création d'un job depuis l'interface Flask puis exécution par `genorun-worker`.
+
+---
+
+## 10. Session 2026-06-17 — Correction démarrage Docker local
+
+### Problème observé
+
+Lors d'un `docker compose up --build`, `genorun-app` échouait avec
+`alembic: command not found` et `genorun-worker` pouvait lire la file PostgreSQL
+avant création des tables, provoquant `relation "analysis_jobs" does not exist`.
+
+### Correction appliquée
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Lancement Alembic via `python -m alembic` dans le conteneur applicatif, pour éviter une résolution PATH fragile avec le shell de démarrage | `Dockerfile` | Fait |
+| 2026-06-17 | Le worker en boucle attend et réessaie si la file PostgreSQL est temporairement indisponible au démarrage | `scripts/run_worker_loop.py` | Fait |
+| 2026-06-17 | Documentation Docker mise à jour avec la commande Alembic robuste et le message d'attente worker | `docs/DOCKER_GUIDE_BEGINNER.md` | Fait |
+
+### Vérifications à faire
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+Critère attendu : `genorun-app` reste actif, `genorun-worker` reste actif après
+les migrations, et l'interface est disponible sur `http://localhost:8000`.
+
+---
+
+## 11. Session 2026-06-17 — Phase 0 utilisateur du dashboard
+
+### Décision d'interface
+
+Le dashboard web adopte une première version opérationnelle inspirée de la
+maquette cible : navigation latérale, formulaire de lancement compact,
+progression pipeline, cartes de métriques, panneaux PCA/ADMIXTURE et logs. Les
+visualisations restent explicitement des démonstrations `dry-run` et ne doivent
+pas être interprétées comme des résultats scientifiques réels.
+
+### Correction appliquée
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Refonte du layout Flask phase 0 utilisateur, sans framework front et sans changer le flux job/worker | `web/templates/base.html`, `web/templates/dashboard.html`, `web/static/css/app.css` | Fait |
+| 2026-06-17 | Ajout d'un smoke test Flask pour le rendu dashboard et la création/polling de job | `tests/test_web_dashboard.py` | Fait |
+| 2026-06-17 | Harnais pytest ajusté pour importer aussi la couche `web/` hors package `src/` | `tests/conftest.py` | Fait |
+| 2026-06-17 | Index de code mis à jour pour le nouveau test web | `docs/CODE_INDEX.md` | Fait |
+
+### Vérifications attendues
+
+```bash
+python -m compileall src scripts web
+pytest -q tests/test_web_dashboard.py
+```
+
+---
+
+## 12. Session 2026-06-17 — Clôture opérationnelle phase 0
+
+### Décision de clôture
+
+La phase 0 est considérée en **REVIEW locale** : le socle Docker/PostgreSQL,
+l'interface Flask dry-run, la file de jobs, les migrations, les tests et les
+guides débutants sont opérationnels sur la machine de développement. La phase 1
+ne doit pas commencer tant que les commandes de clôture restent rouges ou que la
+connexion DBeaver à PostgreSQL Docker n'est pas claire.
+
+### Corrections appliquées
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Documentation débutant Docker enrichie : première utilisation, ports, logs, arrêt, diagnostic | `docs/DOCKER_GUIDE_BEGINNER.md` | Fait |
+| 2026-06-17 | Documentation PostgreSQL/DBeaver enrichie : connexion `localhost:55432`, requêtes utiles, erreurs fréquentes | `docs/POSTGRESQL_GUIDE_BEGINNER.md` | Fait |
+| 2026-06-17 | `.env.example` clarifie `POSTGRES_PORT=55432` comme port hôte et `5432` comme port interne Docker | `.env.example` | Fait |
+| 2026-06-17 | Roadmap mise à jour avec l'état local des portes 0.1 à 0.6 et les commandes de clôture | `docs/ROADMAP.md` | Fait |
+| 2026-06-17 | Commentaire pytest ajusté au format `WHY:` demandé par `AGENTS.md` | `tests/conftest.py` | Fait |
+
+### État des portes phase 0
+
+| Porte | Statut | Note |
+|---|---|---|
+| 0.1 Gouvernance | REVIEW | Documents cohérents pour poursuivre, `AGENTS.md` reste autorité sans statut projet ajouté. |
+| 0.2 Outillage qualité | REVIEW | Outillage configuré ; lint/format à garder vert avant merge. |
+| 0.3 CI/CD | REVIEW | Workflow présent ; validation distante à confirmer sur PR. |
+| 0.4 Contrats d'interface | REVIEW | Contrats et orchestration existent ; les vraies étapes restent hors phase 0. |
+| 0.5 Harnais de test & dry-run | DONE | Run dry-run, Docker, PostgreSQL et tests passent localement. |
+| 0.6 Sécurité socle | REVIEW | Garde-fous présents ; durcissement fichiers d'entrée reste suivi dans ISSUE-006. |
+
+### Commandes de clôture
+
+```bash
+python3 -m compileall src scripts web
+docker compose config
+docker compose up --build -d
+docker compose ps
+curl -I http://localhost:8000
+PGPASSWORD=change-me-local-dev psql -h localhost -p 55432 -U genorun -d genorun_validation -c "\dt"
+docker compose exec -T genorun-app conda run --no-capture-output -n genorun-validation pytest -q
+```
+
+### Vérifications réalisées
+
+| Commande / contrôle | Résultat |
+|---|---|
+| `python3 -m compileall src scripts web` | OK |
+| `docker compose config` | OK |
+| `docker compose up --build -d` | OK |
+| `docker compose ps` | `genorun-app`, `genorun-worker`, `genorun-db` actifs ; PostgreSQL exposé sur `55432` |
+| `curl -I http://localhost:8000` | `200 OK` |
+| `psql -h localhost -p 55432 ... -c "\dt"` | 18 tables visibles, dont `analysis_jobs` |
+| `pytest -q` dans `genorun-app` | 31 tests passés |
+| Création d'un job via `/api/jobs` | Job `run_2026-06-17T071324Z0000_3f074136` terminé en `completed` |
+| Fichiers reproductibles du job | `config.yaml`, `manifest.json`, `status.json`, `logs/`, `outputs/`, `report/` présents |
+
+## 13. Session 2026-06-17 — Mise au point CLI Typer phase 0
+
+### Décision
+
+Le CLI Typer reste un point d'entrée phase 0 dry-run. Il ne lance pas de
+commande bioinformatique directe et partage désormais les mêmes paramètres
+autorisés que l'interface web.
+
+### Corrections appliquées
+
+| Date | Correction | Fichiers | Statut |
+|---|---|---|---|
+| 2026-06-17 | Source unique des choix `dataset`, `profile`, `strategy` phase 0 | `src/genorun_validation/utils/launch_parameters.py` | Fait |
+| 2026-06-17 | CLI aligné sur les identifiants sûrs : `1000G_chr22`, `profil_C`, `geo_ancestrale_decouverte` | `src/genorun_validation/cli.py` | Fait |
+| 2026-06-17 | `JobManager.create_job()` refuse les paramètres hors allowlist | `src/genorun_validation/jobs/manager.py` | Fait |
+| 2026-06-17 | Dashboard alimenté par les choix partagés au lieu d'options codées en dur | `web/routes.py`, `web/templates/dashboard.html` | Fait |
+| 2026-06-17 | Tests CLI ajoutés pour aide, création/liste et erreurs de paramètres | `tests/test_cli.py` | Fait |
+
+### Vérifications réalisées
+
+```bash
+python3 -m compileall src scripts web
+pytest -q tests/test_cli.py tests/test_jobs.py tests/test_web_dashboard.py
+```
+
+| Commande / contrôle | Résultat |
+|---|---|
+| `python3 -m compileall src scripts web` | OK |
+| `pytest -q tests/test_cli.py tests/test_jobs.py tests/test_web_dashboard.py` dans `genorun-app` | 10 tests passés |
+| `pytest -q` dans `genorun-app` | 36 tests passés |
+| `docker compose config` | OK |
+| `docker compose ps` | `genorun-app`, `genorun-worker`, `genorun-db` actifs ; PostgreSQL exposé sur `55432` |
+| `curl -I http://localhost:8000` | `200 OK` |
+| `genorun-validation jobs --help` | Commandes `create`, `worker`, `list` visibles |
+| `genorun-validation jobs create --dataset dataset_inconnu` | Erreur contrôlée : dataset refusé avant création de job |

@@ -56,6 +56,7 @@ Ce fichier doit être mis à jour à chaque création, déplacement, renommage o
 | `src/genorun_validation/cli.py` | `app`, `jobs_app` | CLI Typer principale |
 | `src/genorun_validation/cli.py` | `create_job()` | Crée un job local depuis la CLI |
 | `src/genorun_validation/cli.py` | `run_worker()` | Exécute un job local depuis la CLI |
+| `src/genorun_validation/utils/launch_parameters.py` | `validate_launch_parameters()` | Source unique des datasets, profils et stratégies phase 0 autorisés |
 | `scripts/create_demo_job.py` | `main()` | Crée un job de démonstration |
 | `scripts/run_worker.py` | `main()` | Lance le worker local pour un `job_id` |
 
@@ -72,7 +73,7 @@ Ce fichier doit être mis à jour à chaque création, déplacement, renommage o
 | `src/genorun_validation/jobs/schemas.py` | `utc_now_iso()` | Horodatage UTC ISO-8601 |
 | `src/genorun_validation/jobs/manager.py` | `DEFAULT_STEPS` | Liste ordonnée des étapes du MVP |
 | `src/genorun_validation/jobs/manager.py` | `JobManager` | Création, sauvegarde, lecture et liste des jobs |
-| `src/genorun_validation/jobs/manager.py` | `JobManager.create_job()` | Crée `run_dir`, `config.yaml`, `manifest.json`, `status.json` |
+| `src/genorun_validation/jobs/manager.py` | `JobManager.create_job()` | Valide les paramètres phase 0, puis crée `run_dir`, `config.yaml`, `manifest.json`, `status.json` |
 | `src/genorun_validation/jobs/manager.py` | `JobManager.get_job()` | Charge un job existant |
 | `src/genorun_validation/jobs/manager.py` | `JobManager.save_job()` | Sauvegarde atomique de `status.json` |
 | `src/genorun_validation/jobs/manager.py` | `JobManager.update_status()` | Change le statut principal |
@@ -193,6 +194,8 @@ Les fichiers suivants existent comme points d'ancrage. Ils sont encore minimalis
 | `tests/test_sdiv.py` | Calcul S_div |
 | `tests/test_selection.py` | Sélection WGS |
 | `tests/test_storage.py` | Stockage et chemins |
+| `tests/test_cli.py` | CLI Typer : aide, création/liste de jobs, refus paramètres invalides |
+| `tests/test_web_dashboard.py` | Smoke tests Flask du dashboard phase 0 utilisateur et du flux création/polling job |
 
 Commandes à lancer avant livraison :
 
@@ -264,11 +267,12 @@ pytest -q
 
 | Symptôme | Fichiers à inspecter |
 |---|---|
-| PostgreSQL non joignable | `.env.example`, `docker-compose.yml`, `src/genorun_validation/database/session.py` |
+| PostgreSQL non joignable | `.env`, `.env.example`, `docker-compose.yml`, `docs/POSTGRESQL_GUIDE_BEGINNER.md`, `src/genorun_validation/database/session.py` |
 | Job créé mais non exécuté | `scripts/run_worker_loop.py`, `work/runs/<job_id>/status.json`, `docker compose logs genorun-worker` |
 | Job non visible dans la base | `GENORUN_ENABLE_DATABASE`, `src/genorun_validation/jobs/manager.py`, `src/genorun_validation/database/repositories.py` |
 | Problème de migration | `alembic/env.py`, `alembic/versions/`, `src/genorun_validation/database/models.py` |
 | Chemin absolu persistant | `src/genorun_validation/database/repositories.py`, `src/genorun_validation/settings.py` |
+| DBeaver se connecte au mauvais serveur | `docs/POSTGRESQL_GUIDE_BEGINNER.md`, `docs/DOCKER_GUIDE_BEGINNER.md`, `docker compose port genorun-db 5432` |
 
 ---
 
@@ -303,6 +307,7 @@ pytest -q
 
 | Besoin | Fichier | Rôle |
 |---|---|---|
+| Paramètres de lancement | `src/genorun_validation/utils/launch_parameters.py` | Allowlist partagée web/CLI/JobManager pour `dataset`, `profile`, `strategy`. |
 | Validation entrées | `src/genorun_validation/utils/validators.py` | Identifiants sûrs, anti-remontée de chemin, allowlist d'extensions, poids normalisés. |
 | Tests validation | `tests/test_validators.py` | Cas normaux + cas d'erreur des validateurs. |
 
@@ -338,3 +343,16 @@ pytest -q
 | Le worker ne prend pas les jobs en Docker | `scripts/run_worker_loop.py`, `JobManager.list_runnable_jobs()`, table `analysis_jobs` |
 | Alembic échoue au démarrage | `alembic/versions/0001_initial_schema.py`, `src/genorun_validation/database/models.py` |
 | Les tests/lint cherchent encore `app/` | `.github/workflows/ci.yml`, `pyproject.toml`, `README.md`, `AGENTS.md` |
+
+---
+
+## Clôture phase 0 locale — Docker/PostgreSQL
+
+| Besoin | Source de vérité |
+|---|---|
+| Interface web locale | `http://localhost:8000` via `genorun-app` |
+| PostgreSQL Docker depuis le Mac | `localhost:55432` (`POSTGRES_PORT` dans `.env.example`) |
+| PostgreSQL interne Docker | `genorun-db:5432` dans `GENORUN_DATABASE_URL` |
+| Guide Docker débutant | `docs/DOCKER_GUIDE_BEGINNER.md` |
+| Guide DBeaver/PostgreSQL | `docs/POSTGRESQL_GUIDE_BEGINNER.md` |
+| État des portes phase 0 | `docs/ROADMAP.md`, section "État local 2026-06-17 — clôture phase 0" |

@@ -9,6 +9,7 @@ from typing import Any
 import yaml
 
 from genorun_validation.settings import get_settings
+from genorun_validation.utils.launch_parameters import validate_launch_parameters
 
 from .schemas import JobStatus, PipelineJob, utc_now_iso
 
@@ -51,6 +52,11 @@ class JobManager:
 
     def create_job(self, dataset: str, profile: str, strategy: str, parameters: dict[str, Any] | None = None) -> PipelineJob:
         """Crée un job, son dossier de run, sa config figée et son manifest."""
+        launch_parameters = validate_launch_parameters(dataset=dataset, profile=profile, strategy=strategy)
+        dataset = launch_parameters.dataset
+        profile = launch_parameters.profile
+        strategy = launch_parameters.strategy
+
         job_id = self._new_job_id()
         run_dir = self.runs_root / job_id
         logs_dir = run_dir / "logs"
