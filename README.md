@@ -56,27 +56,123 @@ PostgreSQL : statuts, paramètres, scores, audit
 Interface : progression, résultats ou alerte
 ```
 
-## Mode local simple
+## Démarrage recommandé avec Docker
+
+Docker est le mode normal de travail du projet : il démarre ensemble
+l'interface Flask, le worker et PostgreSQL.
+
+Préparer l'environnement :
+
+```bash
+cp .env.example .env
+docker compose up --build -d
+```
+
+Vérifier que tout tourne :
+
+```bash
+docker compose ps
+curl -I http://localhost:8000
+```
+
+Ouvrir ensuite :
+
+```text
+http://localhost:8000
+```
+
+Éteindre proprement :
+
+```bash
+docker compose down
+```
+
+Redémarrer après une pause ou un redémarrage de l'ordinateur :
+
+```bash
+docker compose up -d
+docker compose ps
+curl -I http://localhost:8000
+```
+
+Lire les logs si l'interface ne s'ouvre pas :
+
+```bash
+docker compose logs --tail=100 genorun-app
+docker compose logs --tail=100 genorun-worker
+docker compose logs --tail=100 genorun-db
+```
+
+PostgreSQL est exposé sur le port hôte défini par `.env` / `.env.example`
+(`55432` en développement recommandé) et sur `5432` à l'intérieur du réseau
+Docker.
+
+## Mode local de secours `.venv`
+
+Ce mode sert à ouvrir l'interface sans dépendre de Docker/PostgreSQL. Il est
+utile pour reprendre la phase 0, vérifier l'UI et tester le flux dry-run
+interface → job → worker → fichiers `work/runs/`.
+
+Préparer l'environnement local une seule fois :
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e .
+```
+
+Démarrer l'interface web dans un premier terminal :
+
+```bash
+GENORUN_ENABLE_DATABASE=false \
+GENORUN_RUNS_ROOT="$PWD/work/runs" \
+.venv/bin/gunicorn --bind 127.0.0.1:8000 web.wsgi:app
+```
+
+Démarrer le worker dry-run dans un second terminal :
+
+```bash
+GENORUN_ENABLE_DATABASE=false \
+GENORUN_RUNS_ROOT="$PWD/work/runs" \
+.venv/bin/python scripts/run_worker_loop.py --poll-seconds 1 --delay 0
+```
+
+Ouvrir ensuite :
+
+```text
+http://127.0.0.1:8000
+```
+
+Contrôle rapide :
+
+```bash
+curl -I http://127.0.0.1:8000
+.venv/bin/python -m pytest -q tests/test_web_dashboard.py
+```
+
+Le mode local ci-dessus désactive PostgreSQL. Les jobs, manifests, logs et
+sorties restent écrits dans `work/runs/<run_id>/`.
+
+## Mode local complet avec conda
+
+À utiliser quand l'environnement bioinformatique local doit aussi contenir les
+outils externes déclarés dans `environment.yml`.
 
 ```bash
 conda env create -f environment.yml
 conda activate genorun-validation
 pip install -e .
 bash scripts/check_tools.sh
-python scripts/init_database.py
-flask --app web run --debug
+GENORUN_ENABLE_DATABASE=false flask --app web run --debug
 ```
 
 Par défaut, la persistance PostgreSQL n'est activée que si `GENORUN_ENABLE_DATABASE=true`.
 
-## Mode Docker recommandé
+## Services Docker
 
 ```bash
-cp .env.example .env
-docker compose up --build
+docker compose ps
 ```
-
-Interface : http://localhost:8000
 
 Services :
 
